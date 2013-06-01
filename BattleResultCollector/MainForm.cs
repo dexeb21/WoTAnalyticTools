@@ -6,90 +6,116 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using CacheReaper;
+using WoTTools.CacheReaper;
 using FirebirdSql.Data;
 using FirebirdSql.Data.FirebirdClient;
 using System.Globalization;
+using System.IO;
 
 namespace BattleResultCollector
 {
     public partial class MainForm : Form
     {
+        private FbConnection myConnection;
+        private CollectorDB CDB;
+        private List<string> CacheFilesProcessed;
+        /////////////////////////////////////////////////////////////////////////////////////////
         public MainForm()
         {
             InitializeComponent();
-        }
+            CacheFilesProcessed = new List<string>();
+            string connectionString =
+                    "User=SYSDBA;" +
+                    "Password=masterkey;" +
+                    @"Database=D:\Project\WoTAnalyticTools\Database\COLLECTORDB.FDB;" +
+                    @"client library=fbembed.dll;" +
+                    "Dialect=3;" +
+                    "Charset=NONE;" +
+                    "Connection lifetime=15;" +
+                    "ServerType=Embedded";
 
+            myConnection = new FbConnection(connectionString);            
+            myConnection.Open();
+            CDB = new CollectorDB(ref myConnection);
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////
         private void MainForm_Load(object sender, EventArgs e)
         {
 
         }
-
+        /////////////////////////////////////////////////////////////////////////////////////////
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            BattleResult_v2 BRv2 = new BattleResult_v2(@"D:\MyClouds\YandexDisk\wot\REP_Cache\!!!\82243763184823766.dat");
-            BattleResult_v2 BRv2_2 = new BattleResult_v2(@"D:\MyClouds\YandexDisk\wot\REP_Cache\325096852076416703.dat");
-            BattleResult_v2 BRv2_3 = new BattleResult_v2(@"D:\MyClouds\YandexDisk\wot\REP_Cache\67690030279124597.dat");
-
-            string connectionString =
-            "User=SYSDBA;" +
-            "Password=masterkey;" +
-            @"Database=D:\Project\WoTAnalyticTools\Database\COLLECTORDB.FDB;" +
-            @"client library=fbembed.dll;" +
-            "Dialect=3;" +
-            "Charset=NONE;" +
-            "Connection lifetime=15;" +
-            "ServerType=Embedded";
-
-
-            FbConnection myConnection = new FbConnection(connectionString);
-            myConnection.Open();
+            openWoTCahceFileDialog.ShowDialog();          
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////
+        private void openWoTCahceFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            BattleResult_v2 BRv2 = new BattleResult_v2(openWoTCahceFileDialog.FileName);
 
             FbTransaction myTransaction = myConnection.BeginTransaction();
-
-            FbCommand myCommand = new FbCommand();
-            CultureInfo cultureUS;
-            cultureUS = CultureInfo.CreateSpecificCulture("en-US");
-
-
-            myCommand.CommandText = "execute procedure ADD_COMMON (";
-            myCommand.CommandText += BRv2.ArenaUniqueID.ToString()+",";
-
-            myCommand.CommandText += BRv2.Common["arenaTypeID"].ToString() + ",";
-            myCommand.CommandText += BRv2.Common["arenaCreateTime"].ToString() + ",";
-            myCommand.CommandText += BRv2.Common["winnerTeam"].ToString() + ",";
-            myCommand.CommandText += BRv2.Common["finishReason"].ToString() + ",";
-            myCommand.CommandText += BRv2.Common["duration"].ToString(cultureUS) + ",";
-            myCommand.CommandText += BRv2.Common["bonusType"].ToString() + ",";
-            myCommand.CommandText += BRv2.Common["guiType"].ToString() + ",";
-            myCommand.CommandText += BRv2.Common["vehLockMode"].ToString() + ")";
-
-            myCommand.Connection = myConnection;
-            myCommand.Transaction = myTransaction;
-
-            Int32 BATTLE_ID = (Int32)myCommand.ExecuteScalar();
-
-            myCommand.Dispose();
-            
-            foreach (KeyValuePair<int, Dictionary<string,dynamic>> Val in BRv2.Players)
+            try
             {
-                myCommand = new FbCommand();
-                myCommand.Connection = myConnection;
-                myCommand.Transaction = myTransaction;
-                myCommand.CommandText = "execute procedure ADD_PLAYER (";
-                myCommand.CommandText += BATTLE_ID.ToString()+",";
-                myCommand.CommandText += Val.Key.ToString() + ",";
-                myCommand.CommandText += "'"+Val.Value["name"] + "',";
-                myCommand.CommandText += Val.Value["clanDBID"].ToString() + ",";
-                myCommand.CommandText += "'" + Val.Value["clanAbbver"] + "',";
-                myCommand.CommandText += Val.Value["prebattleID"].ToString() + ",";
-                myCommand.CommandText += Val.Value["team"].ToString() + ")";
-                myCommand.ExecuteNonQuery();
-                myCommand.Dispose();
+                CDB.AppendBattle(ref BRv2, ref myTransaction);
+                myTransaction.Commit();
             }
-
-            myTransaction.Commit();
-            myConnection.Close();            
+            catch
+            {
+                myTransaction.Rollback();
+                throw new Exception("Ooops! ---> openWoTCahceFileDialog_FileOk");
+            }
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////
+        private void CacheLoadTimer_Tick(object sender, EventArgs e)
+        {
+            DirectoryInfo dir = new DirectoryInfo(@"D:\MyClouds\YandexDisk\wot\REP_Cache");
+            FileSystemInfo[] infos = dir.GetFiles("*.dat");
+            BattleResult_v2 BRv2;
+            
+            FbTransaction myTransaction;
+            AppendResult Res;
+            foreach (FileSystemInfo file in infos)
+            {
+                if (!CacheFilesProcessed.Contains(file.Name))
+                {
+                    myTransaction = myConnection.BeginTransaction();
+                    try
+                    {
+                        BRv2 = new BattleResult_v2(file.FullName.ToString());
+                        Res = CDB.AppendBattle(ref BRv2, ref  myTransaction);
+                        myTransaction.Commit();
+                        CacheFilesProcessed.Add(file.Name);
+                        if (Res == AppendResult.Exist)
+                        {
+                            LogRichTextBox.AppendText(file.Name + " - добавлен ранее" + "\n");
+                        }
+                        else
+                        {
+                            LogRichTextBox.AppendText(file.Name + " - добавлен" + "\n");
+                        }
+                    }
+                    catch
+                    {
+                        myTransaction.Rollback();
+                        throw new Exception("Ooops! ---> CacheLoadTimer_Tick");
+                    }
+                }
+                else
+                {
+                    LogRichTextBox.AppendText(file.Name + " - обработан ранее" + "\n");
+                }
+            }
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////
+        private void buttonTest2_Click(object sender, EventArgs e)
+        {
+            CacheLoadTimer.Enabled = !CacheLoadTimer.Enabled;
+            LogRichTextBox.AppendText("Timer Enabled - " + CacheLoadTimer.Enabled.ToString()+"\n");
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            myConnection.Close();
         }
     }
 }

@@ -12,12 +12,11 @@ using System.IO;
 using System.Numerics;
 using System.Reflection;
 
-namespace CacheReaper
+namespace WoTTools.CacheReaper
 {
     public class BattleResult_v2
     {
         private Dictionary<string, dynamic> __personalResult;
-        //private BigInteger __arenaUniqueID;
         private long __arenaUniqueID;
         private Dictionary<string, dynamic> __common;
         private Dictionary<int, Dictionary<string, dynamic>> __players;

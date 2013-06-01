@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 using IronPython.Hosting;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
-using CacheReaper;
+using WoTTools.CacheReaper;
 
 namespace ReplayViewer
 {
@@ -248,7 +248,7 @@ class Serialize(object):
   "pattonValley",
   "fragsPatton",
   "_dynRecPos_vehicle"};
-            int x = 0;
+            
 
         }
     }

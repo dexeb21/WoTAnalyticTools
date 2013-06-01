@@ -5,8 +5,20 @@
 *.pydevproject
 .project
 .metadata
+ADD/
 bin/
 tmp/
+<<<<<<< HEAD
+Database/*.sql
+Database/*.mdf
+Database/*.ldf
+=======
+Third Party Tools/
+*.exe
+*.dll
+*.zip
+*.rar
+>>>>>>> 63b8f117b383efc1945c624db00e9ec07c3783f2
 *.tmp
 *.bak
 *.swp

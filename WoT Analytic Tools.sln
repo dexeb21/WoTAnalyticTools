@@ -4,6 +4,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayViewer", "ReplayViewer\ReplayViewer.csproj", "{92A1FFB5-653D-4810-B5F2-3D0D4F86EEB5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{72FAC072-E67F-4831-8397-A1A9692900E3} = {72FAC072-E67F-4831-8397-A1A9692900E3}
+		{9568F096-DB64-4FB8-A674-9D969CC213F2} = {9568F096-DB64-4FB8-A674-9D969CC213F2}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayReaper", "ReplayReaper\ReplayReaper.csproj", "{72FAC072-E67F-4831-8397-A1A9692900E3}"
