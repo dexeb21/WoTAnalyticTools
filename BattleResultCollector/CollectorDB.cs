@@ -144,6 +144,88 @@ namespace BattleResultCollector
             myCommand.Dispose();
         }
         /////////////////////////////////////////////////////////////////////////////////////////
+        private void exec_proc_ADD_VEHICLE(ref FbConnection Connection, ref FbTransaction Transaction, ref BattleResult_v2 BRv2, int BATTLE_ID)
+        {
+            FbCommand myCommand;
+            FbCommand mySecondCommand;
+            int Viehicle_ID;
+            foreach (KeyValuePair<int,Dictionary<string, dynamic>> kvp in BRv2.Vehicles)
+            {
+                myCommand = new FbCommand();
+                myCommand.CommandText = "execute procedure ADD_VEHICLE ("
+                + BATTLE_ID.ToString() + ","
+                + kvp.Key.ToString() + ","
+                + kvp.Value["health"].ToString() + ","
+                + kvp.Value["credits"].ToString() + ","
+                + kvp.Value["xp"].ToString() + ","
+                + kvp.Value["shots"].ToString() + ","
+                + kvp.Value["hits"].ToString() + ","
+                + kvp.Value["thits"].ToString() + ","
+                + kvp.Value["he_hits"].ToString() + ","
+                + kvp.Value["pierced"].ToString() + ","
+                + kvp.Value["damageDealt"].ToString() + ","
+                + kvp.Value["damageAssisted"].ToString() + ","
+                + kvp.Value["damageReceived"].ToString() + ","
+                + kvp.Value["shotsReceived"].ToString() + ","
+                + kvp.Value["damaged"].ToString() + ","
+                + kvp.Value["spotted"].ToString() + ","
+                + kvp.Value["kills"].ToString() + ","
+                + kvp.Value["tdamageDealt"].ToString() + ","
+                + kvp.Value["tkills"].ToString() + ","
+                + (Convert.ToInt32(kvp.Value["isTeamKiller"])).ToString() + ","
+                + kvp.Value["capturePoints"].ToString() + ","
+                + kvp.Value["droppedCapturePoints"].ToString() + ","
+                + kvp.Value["mileage"].ToString() + ","
+                + kvp.Value["lifeTime"].ToString() + ","
+                + kvp.Value["killerID"].ToString() + ","
+                + kvp.Value["potentialDamageReceived"].ToString() + ","
+                + kvp.Value["repair"].ToString() + ","
+                + kvp.Value["freeXP"].ToString() + ","
+                + kvp.Value["accountDBID"].ToString() + ","
+                + kvp.Value["team"].ToString() + ","
+                + kvp.Value["typeCompDescr"].ToString() + ","
+                + kvp.Value["gold"].ToString() + ")";
+                myCommand.Connection = Connection;
+                myCommand.Transaction = Transaction;
+                Viehicle_ID = (int)myCommand.ExecuteScalar();
+                myCommand.Dispose();
+
+                foreach (int Val in kvp.Value["achievements"])
+                {
+                    mySecondCommand = new FbCommand();
+                    mySecondCommand.CommandText = "execute procedure ADD_ACHIEVEMENT ("
+                    + Viehicle_ID.ToString() + ","
+                    +Val.ToString()+ ")";
+                    mySecondCommand.Connection = Connection;
+                    mySecondCommand.Transaction = Transaction;
+                    mySecondCommand.ExecuteNonQuery();
+                    mySecondCommand.Dispose();
+                }
+
+                foreach (KeyValuePair<int, Dictionary<string, int>> Val in kvp.Value["details"])
+                {
+                    mySecondCommand = new FbCommand();
+                    mySecondCommand.CommandText = "execute procedure ADD_DETAILS ("
+                    + Viehicle_ID.ToString() + ","
+                    + Val.Key.ToString() + ","
+                    + Val.Value["spotted"].ToString() + ","
+                    + Val.Value["killed"].ToString() + ","
+                    + Val.Value["hits"].ToString() + ","
+                    + Val.Value["he_hits"].ToString() + ","
+                    + Val.Value["pierced"].ToString() + ","
+                    + Val.Value["damageDealt"].ToString() + ","
+                    + Val.Value["damageAssisted"].ToString() + ","
+                    + Val.Value["crits"].ToString() + ","
+                    + Val.Value["fire"].ToString() + ")";
+                    mySecondCommand.Connection = Connection;
+                    mySecondCommand.Transaction = Transaction;
+                    mySecondCommand.ExecuteNonQuery();
+                    mySecondCommand.Dispose();
+                }
+
+            }
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////
         private void exec_proc_ADD_DOSSIERPOPUPS(ref FbConnection Connection, ref FbTransaction Transaction, ref BattleResult_v2 BRv2, int BATTLE_ID)
         {
             FbCommand myCommand;
@@ -194,6 +276,7 @@ namespace BattleResultCollector
                 exec_proc_ADD_PLAYER(ref myConnection, ref Transaction, ref BRv2, BATTLE_ID);
                 exec_proc_ADD_PERSONAL(ref myConnection, ref Transaction, ref BRv2, BATTLE_ID);
                 exec_proc_ADD_DOSSIERPOPUPS(ref myConnection, ref Transaction, ref BRv2, BATTLE_ID);
+                exec_proc_ADD_VEHICLE(ref myConnection, ref Transaction, ref BRv2, BATTLE_ID);
                 return AppendResult.Append;
             }
             else

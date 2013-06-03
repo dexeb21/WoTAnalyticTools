@@ -36,6 +36,7 @@
             this.buttonTest2 = new System.Windows.Forms.Button();
             this.LogRichTextBox = new System.Windows.Forms.RichTextBox();
             this.CacheLoadTimer = new System.Windows.Forms.Timer(this.components);
+            this.buttonTest3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // notifyIcon
@@ -84,11 +85,22 @@
             this.CacheLoadTimer.Interval = 1000;
             this.CacheLoadTimer.Tick += new System.EventHandler(this.CacheLoadTimer_Tick);
             // 
+            // buttonTest3
+            // 
+            this.buttonTest3.Location = new System.Drawing.Point(206, 270);
+            this.buttonTest3.Name = "buttonTest3";
+            this.buttonTest3.Size = new System.Drawing.Size(75, 23);
+            this.buttonTest3.TabIndex = 3;
+            this.buttonTest3.Text = "086_Test";
+            this.buttonTest3.UseVisualStyleBackColor = true;
+            this.buttonTest3.Click += new System.EventHandler(this.buttonTest3_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(558, 305);
+            this.Controls.Add(this.buttonTest3);
             this.Controls.Add(this.LogRichTextBox);
             this.Controls.Add(this.buttonTest2);
             this.Controls.Add(this.buttonTest);
@@ -112,6 +124,7 @@
         private System.Windows.Forms.Button buttonTest2;
         private System.Windows.Forms.RichTextBox LogRichTextBox;
         private System.Windows.Forms.Timer CacheLoadTimer;
+        private System.Windows.Forms.Button buttonTest3;
     }
 }
 

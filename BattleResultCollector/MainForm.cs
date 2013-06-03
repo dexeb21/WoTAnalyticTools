@@ -94,10 +94,10 @@ namespace BattleResultCollector
                             LogRichTextBox.AppendText(file.Name + " - добавлен" + "\n");
                         }
                     }
-                    catch
+                    catch (Exception expept)
                     {
                         myTransaction.Rollback();
-                        throw new Exception("Ooops! ---> CacheLoadTimer_Tick");
+                        throw new Exception("Ooops! ---> CacheLoadTimer_Tick: " + expept.Message);
                     }
                 }
                 else
@@ -116,6 +116,11 @@ namespace BattleResultCollector
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             myConnection.Close();
+        }
+
+        private void buttonTest3_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }

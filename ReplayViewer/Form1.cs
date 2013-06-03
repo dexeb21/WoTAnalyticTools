@@ -32,20 +32,26 @@ namespace ReplayViewer
         private void btnTest_Click(object sender, EventArgs e)
         {
             Reaper RR = new Reaper();
+            Reaper RR2 = new Reaper();
 
             richTextBox.Clear();
 
-            WoTReplay Replay = RR.Parse(@"D:\MyClouds\YandexDisk\wot\REP_Cache\!!!\82243763184823766.wotreplay");
+            WoTReplay Replay = RR.Parse(@"D:\MyClouds\YandexDisk\wot\REP_Cache\086\086_20130531_2238_uk-GB51_Excelsior_07_lakeville (1).wotreplay");
+            WoTReplay Replay2 = RR2.Parse(@"D:\MyClouds\YandexDisk\wot\REP_Cache\67690030279124597.wotreplay");
+            /*
+            ReplayInfo RI = new ReplayInfo();
+            RI.ReadDataFromFile(@"D:\MyClouds\YandexDisk\wot\REP_Cache\086\086_20130531_2238_uk-GB51_Excelsior_07_lakeville (1).wotreplay");
 
-            //ReplayInfo RI = new ReplayInfo();
-            //RI.ReadDataFromFile(@"D:\REP_Cache\164598219192194844_20130522_2233_germany-PzV_07_lakeville.wotreplay");
+            ReplayInfo RI2 = new ReplayInfo();
+            RI2.ReadDataFromFile(@"D:\MyClouds\YandexDisk\wot\REP_Cache\67690030279124597.wotreplay");
+            */
 
 
            // BattleResult_v2 BR = new BattleResult_v2(@"D:\MyClouds\YandexDisk\wot\REP_Cache\!!!\___KV1_321235285635519637.dat");
-            BattleResult_v2 BRv2 = new BattleResult_v2(@"D:\MyClouds\YandexDisk\wot\REP_Cache\!!!\82243763184823766.dat");
+            //BattleResult_v2 BRv2 = new BattleResult_v2(@"D:\MyClouds\YandexDisk\wot\REP_Cache\!!!\82243763184823766.dat");
 
             //KeyValuePair<string, dynamic>
-            
+            /*
             foreach (int key in BRv2.Vehicles.Keys)
             {
                 richTextBox.AppendText(BRv2.Players[BRv2.Vehicles[key]["accountDBID"]]["name"]);
@@ -57,7 +63,7 @@ namespace ReplayViewer
                 richTextBox.AppendText("---Damage: "+BRv2.Vehicles[key]["damageDealt"]+"\n");
                 richTextBox.AppendText("---Team  : " + BRv2.Vehicles[key]["team"] + "\n");
             }
-
+*/
 
             JsonTextReader reader = new JsonTextReader(new StringReader(RR.RawData2));
 
@@ -95,12 +101,12 @@ class Serialize(object):
             object instance = ops.Invoke(klass);
             object method = ops.GetMember(instance, "unpickle");
             
-            object result = ops.Invoke(method, (object)RR.RawData3);
-
+            object result1 = ops.Invoke(method, (object)RR.RawData3);
+            object result2 = ops.Invoke(method, (object)RR2.RawData3);
 
             
 
-            IronPython.Runtime.PythonDictionary OBJ = (IronPython.Runtime.PythonDictionary)result;
+            IronPython.Runtime.PythonDictionary OBJ = (IronPython.Runtime.PythonDictionary)result1;
 
             //Dictionary<string, dynamic> D = OBJ.ToDictionary<string, dynamic>(;
 
