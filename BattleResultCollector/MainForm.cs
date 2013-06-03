@@ -11,6 +11,7 @@ using FirebirdSql.Data;
 using FirebirdSql.Data.FirebirdClient;
 using System.Globalization;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace BattleResultCollector
 {
@@ -19,15 +20,21 @@ namespace BattleResultCollector
         private FbConnection myConnection;
         private CollectorDB CDB;
         private List<string> CacheFilesProcessed;
+        private CollectorConfig MyConfig;
         /////////////////////////////////////////////////////////////////////////////////////////
         public MainForm()
         {
             InitializeComponent();
+            MyConfig = new CollectorConfig();
+            MyConfig = CollectorConfig.LoadFromFile(@"setting.cfg");
+
+
             CacheFilesProcessed = new List<string>();
             string connectionString =
                     "User=SYSDBA;" +
                     "Password=masterkey;" +
-                    @"Database=D:\Project\WoTAnalyticTools\Database\COLLECTORDB.FDB;" +
+                    @"Database="+ MyConfig.Database +";" +
+                    //@"Database=D:\Project\WoTAnalyticTools\Database\COLLECTORDB.FDB;" +
                     @"client library=fbembed.dll;" +
                     "Dialect=3;" +
                     "Charset=NONE;" +
@@ -109,6 +116,7 @@ namespace BattleResultCollector
         /////////////////////////////////////////////////////////////////////////////////////////
         private void buttonTest2_Click(object sender, EventArgs e)
         {
+            CacheLoadTimer.Interval = MyConfig.ScanInterval;
             CacheLoadTimer.Enabled = !CacheLoadTimer.Enabled;
             LogRichTextBox.AppendText("Timer Enabled - " + CacheLoadTimer.Enabled.ToString()+"\n");
         }
